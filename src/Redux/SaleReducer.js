@@ -6,8 +6,6 @@ let initialState = {
             price: 10,
             discount: null,
             inCart: false,
-            amount: 0,
-            totalPrice: 0
         },
         {
             name: 'Яблоко',
@@ -15,8 +13,6 @@ let initialState = {
             price: 8,
             discount: null,
             inCart: false,
-            amount: 0,
-            totalPrice: 0
         },
         {
             name: 'Папая',
@@ -24,41 +20,57 @@ let initialState = {
             price: 10,
             discount: 3,
             inCart: false,
-            amount: 0,
-            totalPrice: 0
         },
     ],
+    bucket: [],
 };
+
+const discount = (newBucket, products, action) => {
+    for (let i = 0; i < newBucket.length; i++) {
+        if (newBucket[i].id === action.id) {
+            newBucket[i].totalPrice = newBucket[i].amount * products[action.id].price;
+            if (products[action.id].discount != null)
+                newBucket[i].totalPrice -= Math.trunc(newBucket[i].amount / products[action.id].discount) * 5;
+            return newBucket;
+        }
+    }
+}
 
 const salesReducer = (state = initialState, action) => {
     switch (action.type) {
         case 'CHANGE-BUCKET-STATE': {
             let newProducts = [...state.products];
-            newProducts[action.id].amount = newProducts[action.id].inCart ? 0 : 1;
-            newProducts[action.id].totalPrice = newProducts[action.id].inCart ? 0 : newProducts[action.id].price;
-            newProducts[action.id].inCart = !newProducts[action.id].inCart;
-            return {...state, products: newProducts}
+            let newBucket = [...state.bucket];
+            if (newProducts[action.id].inCart) {
+                newProducts[action.id].inCart = !newProducts[action.id].inCart;
+                newBucket = state.bucket.filter(product => product.id !== action.id)
+            } else {
+                newProducts[action.id].inCart = !newProducts[action.id].inCart;
+                newBucket.push({id: action.id, amount: 1, totalPrice: newProducts[action.id].price})
+            }
+            return {...state, products: newProducts, bucket: newBucket}
         }
         case 'INC-AMOUNT': {
-            let newProducts = [...state.products];
-            newProducts[action.id].amount++;
-            newProducts[action.id].totalPrice = newProducts[action.id].amount * newProducts[action.id].price;
-            if(newProducts[action.id].discount != null){
-                let a = Math.trunc(newProducts[action.id].amount / newProducts[action.id].discount) * 5;
-                newProducts[action.id].totalPrice -= a;
-            }
-            return {...state, products: newProducts}
+            let newBucket = [...state.bucket];
+            newBucket = newBucket.map(product => {
+                if(product.id ===action.id) product.amount++;
+                return product;
+            })
+
+            newBucket = discount(newBucket, state.products, action);
+            return {...state, bucket: newBucket}
         }
         case 'DEC-AMOUNT': {
-            let newProducts = [...state.products];
-            newProducts[action.id].amount--;
-            if(newProducts[action.id].amount < 0) newProducts[action.id].amount = 0;
-            newProducts[action.id].totalPrice = newProducts[action.id].amount * newProducts[action.id].price;
-            if(newProducts[action.id].discount != null){
-                let a = Math.trunc(newProducts[action.id].amount / newProducts[action.id].discount) * 5;
-                newProducts[action.id].totalPrice -= a;
-            }
-            return {...state, products: newProducts}
+            let newBucket = [...state.bucket];
+
+            newBucket = newBucket.map(product => {
+                if(product.id === action.id) product.amount--;
+                if(product.amount < 0) product.amount = 0;
+                return product;
+            })
+
+            newBucket = discount(newBucket, state.products, action);
+            return {...state, bucket: newBucket}
         }
         default:
             return state;

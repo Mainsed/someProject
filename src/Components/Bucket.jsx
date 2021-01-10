@@ -12,19 +12,17 @@ const Bucket = (props) => {
     }
 
     const deleteFromBucket = (e) => {
-        debugger;
         props.changeBucketState(parseInt(e.currentTarget.name));
     }
 
     const sumPrices = (products) => {
         let price = 0;
-        for (let i = 0; i < products.length; i++) {
-            price += products[i].inCart ? products[i].totalPrice : 0;
-        }
+        for (let i = 0; i < products.length; i++)
+            price += products[i].totalPrice;
         return price;
     }
 
-    const total = sumPrices(props.products);
+    const total = sumPrices(props.bucket);
 
     return <Grid container>
         <Grid item xs={12}>
@@ -33,30 +31,30 @@ const Bucket = (props) => {
                 <Typography variant={"h6"} align={"center"}>Выбраные товары</Typography>
                 <Grid container justify={"center"}>
                     <Grid item xs={12} md={8} xl={6}>
-                        {props.products.map((product, id) => {
-                            return product.inCart ? (
-                                <Grid item xs={12} key={id}>
+                        {props.bucket.map((product) => {
+                            return (
+                                <Grid item xs={12} key={product.id}>
                                     <Paper elevation={8} className="productBucket">
                                         <Grid container justify={"space-evenly"} alignItems={"center"}>
                                             <Grid item xs={3}>
-                                                <Typography align={"center"}>{product.name}</Typography>
+                                                <Typography align={"center"}>{props.products[product.id].name}</Typography>
                                             </Grid>
                                             <Grid item xs={2}>
                                                 <Typography align={"center"}>
-                                                    <img src={product.picture} alt={product.name} key={`img${id}`}/>
+                                                    <img src={props.products[product.id].picture} alt={product.name}/>
                                                 </Typography>
                                             </Grid>
                                             <Grid item xs={2}>
-                                                <Typography align={"center"}>Цена: {product.price}</Typography>
+                                                <Typography align={"center"}>Цена: {props.products[product.id].price}</Typography>
                                             </Grid>
 
                                             <Grid item xs={2}>
                                                 <Grid container direction={"column"} justify={"center"}>
-                                                    <Button size={"small"} onClick={incAmount} name={id}>ᐱ</Button>
+                                                    <Button size={"small"} onClick={incAmount} name={product.id}>ᐱ</Button>
                                                     <Typography align={"center"}>
                                                         {product.amount}
                                                     </Typography>
-                                                    <Button size={"small"} onClick={decAmount} name={id}>ᐯ</Button>
+                                                    <Button size={"small"} onClick={decAmount} name={product.id}>ᐯ</Button>
                                                 </Grid>
                                             </Grid>
                                             <Grid item xs={2}>
@@ -65,14 +63,14 @@ const Bucket = (props) => {
                                                 </Typography>
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <Button size={"small"} color={"secondary"} name={id} onClick={deleteFromBucket}>
+                                                <Button size={"small"} color={"secondary"} name={product.id} onClick={deleteFromBucket}>
                                                     X
                                                 </Button>
                                             </Grid>
                                         </Grid>
                                     </Paper>
                                 </Grid>
-                            ) : ''
+                            )
                         })}
                     </Grid>
                 </Grid>

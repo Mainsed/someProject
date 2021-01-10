@@ -14,10 +14,10 @@ const Shop = (props) => {
                     {props.products.map((product, id) => {
                         return <Grid item xs={4} md={2} xl={1} key={id}>
                             <Paper elevation={8} className="product">
-                                <Typography align={"center"} key={`name${id}`}>{product.name}</Typography>
-                                <img src={product.picture} alt={product.name} key={`img${id}`}/>
-                                <Typography align={"center"} key={`price${id}`}>Цена: {product.price}</Typography>
-                                <Button variant={"contained"} name={id} onClick={handleClick} key={`button${id}`}>
+                                <Typography align={"center"}>{product.name}</Typography>
+                                <img src={product.picture} alt={product.name}/>
+                                <Typography align={"center"}>Цена: {product.price}</Typography>
+                                <Button variant={"contained"} name={id} onClick={handleClick}>
                                     {product.inCart ? "Убрать из корзины" : "Добавить в корзину"}
                                 </Button>
                             </Paper>
